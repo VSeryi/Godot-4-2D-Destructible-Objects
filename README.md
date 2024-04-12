@@ -1,8 +1,8 @@
-# Godot 3 2D Destructible Objects
+# Godot 4 2D Destructible Objects
 
 A script that takes a sprite, divides it into blocks and makes them explode 💥!
 
-![Godot-3-2D-Destructible-Objects](examples/Godot-3-2D-Destructible-Objects.gif)
+![Godot-4-2D-Destructible-Objects](examples/Godot-4-2D-Destructible-Objects.gif)
 
 ## Limitations
 
@@ -16,7 +16,7 @@ Each destructible object must follow this structure and must be its own `Scene` 
 RigidBody2D
 ├── Sprite
 └── CollisionShape2D
-    └── RectangleShape2D
+	└── RectangleShape2D
 ```
 
 ## Usage
@@ -26,9 +26,9 @@ RigidBody2D
 * Instance the `destructible_object` scene file.
 * Attach `explode_object.gd` to the destructible object as a `Script`.
 
-![Godot-3-2D-Destructible-Objects-Tree](examples/tree.png)
+![Godot-4-2D-Destructible-Objects-Tree](examples/tree.png)
 
-The reason for organizing it this way is because then you can add particles (`Partcicles2D` or `CPUParticles2D`), fake particles (like the ones provided with this project), hitboxes (`Area2D`) or whatever you feel like to the `Node2D` (e.g. `destructible_object_01`) holding the main `RigidBody2D` and you can then use this script to control those nodes.
+The reason for organizing it this way is because then you can add particles (GPUParticles2D` or `CPUParticles2D`), fake particles (like the ones provided with this project), hitboxes (`Area2D`) or whatever you feel like to the `Node2D` (e.g. `destructible_object_01`) holding the main `RigidBody2D` and you can then use this script to control those nodes.
 
 Of course, you can recreate that tree in GDSscript, with something like this:
 
@@ -64,7 +64,7 @@ node.add_child(rigid_body, true)
 
 ## Parameters
 
-![Godot-3-2D-Destructible-Objects-Parameters](examples/parameters.png)
+![Godot-4-2D-Destructible-Objects-Parameters](examples/parameters.png)
 
 ### Blocks Per Side
 
@@ -138,7 +138,7 @@ Sometimes `object.detonate` is set to `false` so quickly that the explosion neve
 | --- | --- | --- | --- |
 | `fake_explosions_group` | `String` |  Renames the group's name of the fake explosion particles. | `fake_explosion_particles` |
 
-This project provides an extra script for creating [fake explosion particles](https://github.com/hiulit/Godot-3-2D-Fake-Explosion-Particles). That script uses a group name to be able to find the fake explosion particles more easily.
+This project provides an extra script for creating [fake explosion particles](https://github.com/VSeryi/Godot-4-2D-Fake-Explosion-Particles). That script uses a group name to be able to find the fake explosion particles more easily.
 
 ### Randomize seed
 
@@ -158,16 +158,17 @@ See [CHANGELOG](CHANGELOG.md).
 
 ## Authors
 
-* Me 😛 [hiulit](https://github.com/hiulit).
+* Me 😛 [VSeryi](https://github.com/VSeryi).
+* [hiulit](https://github.com/hiulit).
 
 ## Credits
 
 Thanks to:
 
+* [hiulit](https://github.com/hiulit) - For the [original version compatible with Godot 3](https://github.com/hiulit/Godot-3-2D-Destructible-Objects)
 * Airvikar - For this [Youtube video](https://www.youtube.com/watch?v=ExX7Qyldtfg) that is the code base for this script.
 * [Securas](https://twitter.com/Securas2010) - For all the [great games](https://securas.itch.io/) and [Twitch streams](https://www.twitch.tv/sec_ras/videos?filter=all&sort=time) that give me lots of ideas, and particularly, the destructible objects one.
 * [Scott Lembcke](https://twitter.com/slembcke) - For letting me know about Voronoi regions (which aren't currently available) and helping me with adding more depth to the explosion (random collisions and z-index).
-
 
 ## License
 

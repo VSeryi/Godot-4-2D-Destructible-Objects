@@ -1,23 +1,26 @@
 extends RigidBody2D
 
-export (int, 2, 10, 2) var blocks_per_side = 6
-export (float) var blocks_impulse = 600
-export (float) var blocks_gravity_scale = 10
-export (float) var debris_max_time = 5
-export (bool) var remove_debris = false
-export (int) var collision_layers = 1
-export (int) var collision_masks = 1
-export (bool) var collision_one_way = false
-export (bool) var explosion_delay = false
-export (String) var fake_explosions_group = "fake_explosion_particles"
-export (bool) var randomize_seed = false
-export (bool) var debug_mode = false
+@export_range (2, 10, 2) var blocks_per_side: int = 6
+@export var blocks_impulse: float = 600
+@export var blocks_gravity_scale: float = 10
+@export var debris_max_time: float = 5
+@export var remove_debris: bool = false
+@export var collision_layers: int = 1
+@export var collision_masks: int = 1
+@export var collision_one_way: bool = false
+@export var explosion_delay: bool = false
+@export var fake_explosions_group: String = "fake_explosion_particles"
+@export var randomize_seed: bool = false
+@export var debug_mode: bool = false
+
+var ps = PhysicsServer2D
 
 var object = {}
 
 var explosion_delay_timer = 0
 var explosion_delay_timer_limit = 0
 
+# Called when the node enters the scene tree for the first time.
 func _ready():
 	object = {
 		blocks = [],
@@ -61,14 +64,14 @@ func _ready():
 		return
 
 	for child in get_children():
-		if child is Sprite:
+		if child is Sprite2D:
 			object.sprite_name = child.name
 
 		if child is CollisionShape2D:
 			object.collision_name = child.name
 
 	if not object.sprite_name and not object.collision_name:
-		print("ERROR: The 'RigidBody2D' (%s) must contain at least a 'Sprite' and a 'CollisionShape2D'." % self.name)
+		print("ERROR: The 'RigidBody2D' (%s) must contain at least a 'Sprite2D' and a 'CollisionShape2D'." % self.name)
 		object.can_detonate = false
 		return
 
@@ -83,7 +86,7 @@ func _ready():
 		return
 
 	# Set the debris timer.
-	object.debris_timer.connect("timeout", self ,"_on_debris_timer_timeout") 
+	object.debris_timer.connect("timeout", Callable(self, "_on_debris_timer_timeout")) 
 	object.debris_timer.set_one_shot(true)
 	object.debris_timer.set_wait_time(object.debris_max_time)
 	object.debris_timer.name = "debris_timer"
@@ -94,27 +97,27 @@ func _ready():
 	if debug_mode: print("--------------------------------")
 
 	# Use vframes and hframes to divide the sprite.
-	get_node(object.sprite_name).vframes = object.blocks_per_side
-	get_node(object.sprite_name).hframes = object.blocks_per_side
-	object.vframes = get_node(object.sprite_name).vframes
-	object.hframes = get_node(object.sprite_name).hframes
+	find_child(object.sprite_name).vframes = object.blocks_per_side
+	find_child(object.sprite_name).hframes = object.blocks_per_side
+	object.vframes = find_child(object.sprite_name).vframes
+	object.hframes = find_child(object.sprite_name).hframes
 
 	if debug_mode: print("object's blocks per side: ", object.blocks_per_side)
 	if debug_mode: print("object's total blocks: ", object.blocks_per_side * object.blocks_per_side)
 
 	# Check if the sprite is using 'Region' to get the proper width and height.
-	if get_node(object.sprite_name).region_enabled:
-		object.width = float(get_node(object.sprite_name).region_rect.size.x)
-		object.height = float(get_node(object.sprite_name).region_rect.size.y)
+	if find_child(object.sprite_name).region_enabled:
+		object.width = float(find_child(object.sprite_name).region_rect.size.x)
+		object.height = float(find_child(object.sprite_name).region_rect.size.y)
 	else:
-		object.width = float(get_node(object.sprite_name).texture.get_width())
-		object.height = float(get_node(object.sprite_name).texture.get_height())
+		object.width = float(find_child(object.sprite_name).texture.get_width())
+		object.height = float(find_child(object.sprite_name).texture.get_height())
 
 	if debug_mode: print("object's width: ", object.width)
 	if debug_mode: print("object's height: ", object.height)
 
 	# Check if the sprite is centered to get the offset.
-	if get_node(object.sprite_name).centered:
+	if find_child(object.sprite_name).centered:
 		object.offset = Vector2(object.width / 2, object.height / 2)
 
 		if debug_mode: print("object is centered!")
@@ -143,16 +146,16 @@ func _ready():
 		var shape = RectangleShape2D.new()
 		shape.extents = object.collision_extents
 
-		object.blocks[n].set_mode(MODE_STATIC)
-		object.blocks[n].get_node(object.sprite_name).vframes = object.vframes
-		object.blocks[n].get_node(object.sprite_name).hframes = object.hframes
-		object.blocks[n].get_node(object.sprite_name).frame = n
-		object.blocks[n].get_node(object.collision_name).shape = shape
-		object.blocks[n].get_node(object.collision_name).position = object.collision_position
+		ps.body_set_mode(object.blocks[n], PhysicsServer2D.BODY_MODE_STATIC)
+		object.blocks[n].find_child(object.sprite_name).vframes = object.vframes
+		object.blocks[n].find_child(object.sprite_name).hframes = object.hframes
+		object.blocks[n].find_child(object.sprite_name).frame = n
+		object.blocks[n].find_child(object.collision_name).shape = shape
+		object.blocks[n].find_child(object.collision_name).position = object.collision_position
 
-		if object.collision_one_way: object.blocks[n].get_node(object.collision_name).one_way_collision = true
+		if object.collision_one_way: object.blocks[n].find_child(object.collision_name).one_way_collision = true
 
-		if debug_mode: object.blocks[n].modulate = Color(rand_range(0, 1), rand_range(0, 1), rand_range(0, 1), 0.9)
+		if debug_mode: object.blocks[n].modulate = Color(randf_range(0, 1), randf_range(0, 1), randf_range(0, 1), 0.9)
 
 	# Position each block in place to create the whole sprite.
 	for x in range(object.hframes):
@@ -169,10 +172,9 @@ func _ready():
 
 	if debug_mode: print("--------------------------------")
 
-
 func _physics_process(delta):
 	if Input.is_key_pressed(KEY_Q) and object.can_detonate or \
-		Input.is_mouse_button_pressed(BUTTON_LEFT) and object.can_detonate:
+		Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and object.can_detonate:
 		# This is what triggers the explosion, setting 'object.detonate' to 'true'.
 		object.detonate = true
 
@@ -199,10 +201,8 @@ func _physics_process(delta):
 			if object.blocks_container.get_child_count() == 0:
 				object.parent.queue_free()
 
-
 func _integrate_forces(state):
 	explosion(state.step)
-
 
 func add_children(child_object):
 	for i in range(child_object.blocks.size()):
@@ -215,19 +215,18 @@ func add_children(child_object):
 	self.position = Vector2(-999999, -999999)
 #	self.queue_free()
 
-
 func detonate():
 	object.can_detonate = false
 	object.has_detonated = true
 
 	# Check if the parent node has particles as a child.
 	for child in object.parent.get_children():
-		if child is Particles2D or child is CPUParticles2D or child.is_in_group(fake_explosions_group):
+		if child is GPUParticles2D or child is CPUParticles2D or child.is_in_group(fake_explosions_group):
 			object.particles = child
 			object.has_particles = true
 
 	if object.has_particles:
-		if object.particles is Particles2D or object.particles is CPUParticles2D:
+		if object.particles is GPUParticles2D or object.particles is CPUParticles2D:
 			object.particles.emitting = true
 		elif object.particles.is_in_group(fake_explosions_group):
 			object.particles.particles_explode = true
@@ -238,9 +237,9 @@ func detonate():
 		var child_gravity_scale = blocks_gravity_scale
 		child.gravity_scale = child_gravity_scale
 
-		var child_scale = rand_range(0.5, 1.5)
-		child.get_node(object.sprite_name).scale = Vector2(child_scale, child_scale)
-		child.get_node(object.collision_name).scale = Vector2(child_scale, child_scale)
+		var child_scale = randf_range(0.5, 1.5)
+		child.find_child(object.sprite_name).scale = Vector2(child_scale, child_scale)
+		child.find_child(object.collision_name).scale = Vector2(child_scale, child_scale)
 
 		child.mass = child_scale
 
@@ -249,23 +248,13 @@ func detonate():
 
 		child.z_index = 0 if randf() < 0.5 else -1
 
-		var child_color = rand_range(100, 255) / 255
-		var color_tween = Tween.new()
-		color_tween.interpolate_property(
-			child,
-			"modulate", 
-			Color(1.0, 1.0, 1.0, 1.0),
-			Color(child_color, child_color, child_color, 1.0),
-			0.25,
-			Tween.TRANS_LINEAR,
-			Tween.EASE_IN)
-		add_child(color_tween, true)
-		color_tween.start()
-
-		child.set_mode(MODE_RIGID)
+		var child_color = randf_range(100, 255) / 255
+		var color_tween = create_tween().bind_node(self)
+		color_tween.tween_property(child, "modulate", Color(child_color, child_color, child_color, 1.0), 0.25).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_LINEAR)
+		color_tween.play()
+		ps.call_deferred("body_set_mode", child, PhysicsServer2D.BODY_MODE_RIGID)
 
 	object.debris_timer.start()
-
 
 func explosion(delta):
 	if object.detonate:
@@ -273,8 +262,8 @@ func explosion(delta):
 
 		for i in range(object.blocks_container.get_child_count()):
 			var child = object.blocks_container.get_child(i)
-
-			child.apply_central_impulse(Vector2(rand_range(-blocks_impulse, blocks_impulse), -blocks_impulse))
+ 
+			child.apply_central_impulse(Vector2(randf_range(-blocks_impulse, blocks_impulse), -blocks_impulse))
 
 		# Add a delay before setting 'object.detonate' to 'false'.
 		# Sometimes 'object.detonate' is set to 'false' so quickly that the explosion never happens.
@@ -292,7 +281,6 @@ func explosion(delta):
 		else:
 			object.detonate = false
 
-
 func _on_debris_timer_timeout():
 	if debug_mode: print("'%s' object's debris timer (%ss) timed out!" % [self.name, debris_max_time])
 
@@ -300,8 +288,8 @@ func _on_debris_timer_timeout():
 		var child = object.blocks_container.get_child(i)
 
 		if not object.remove_debris:
-			child.set_mode(MODE_STATIC)
-			child.get_node(object.collision_name).disabled = true
+			ps.body_set_mode(child, PhysicsServer2D.BODY_MODE_STATIC)
+			child.find_child(object.collision_name).disabled = true
 
 			# Remove the self element as we don't need it anymore.
 			self.queue_free()
@@ -311,19 +299,11 @@ func _on_debris_timer_timeout():
 			var color_b = child.modulate.b
 			var color_a = child.modulate.a
 
-			var opacity_tween = Tween.new()
-			opacity_tween.connect("tween_completed", self, "_on_opacity_tween_completed")
-			opacity_tween.interpolate_property(
-				child,
-				"modulate", 
-				Color(color_r, color_g, color_b, color_a),
-				Color(color_r, color_g, color_b, 0.0),
-				rand_range(0.0, 1.0),
-				Tween.TRANS_LINEAR,
-				Tween.EASE_IN)
-			add_child(opacity_tween, true)
-			opacity_tween.start()
+			var opacity_tween = create_tween().bind_node(self)
+			opacity_tween.tween_callback(_on_opacity_tween_completed.bind(child))
+			opacity_tween.tween_property(child, "modulate", Color(color_r, color_g, color_b, color_a), randf_range(0.0, 1.0)).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_LINEAR)
+			opacity_tween.play()
 
 
-func _on_opacity_tween_completed(obj, _key):
+func _on_opacity_tween_completed(obj):
 	obj.queue_free()

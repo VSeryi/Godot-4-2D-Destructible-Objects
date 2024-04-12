@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://dmxxvrwa1scq1"]
 
-[ext_resource type="PackedScene" uid="uid://cbc128cs8nqyc" path="res://destructible_object.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://destructible_object.tscn" id="1"]
 [ext_resource type="Script" path="res://explode_object.gd" id="2"]
-[ext_resource type="PackedScene" uid="uid://bn6uk7an8n0nn" path="res://explosion_particles.tscn" id="3"]
-[ext_resource type="PackedScene" uid="uid://bhvatbqm40355" path="res://fake_explosion_particles.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://explosion_particles.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://fake_explosion_particles.tscn" id="4"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(744, 66)

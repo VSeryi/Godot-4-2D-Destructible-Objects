@@ -1,25 +1,25 @@
 extends Node2D
 
-export (int) var min_particles_number = 200
-export (int) var max_particles_number = 400
+@export var min_particles_number: int = 200
+@export var max_particles_number: int = 400
 
-export (float) var min_particles_gravity = 200.0
-export (float) var max_particles_gravity = 600.0
+@export var min_particles_gravity: float = 200.0
+@export var max_particles_gravity: float = 600.0
 
-export (float) var min_particles_velocity = 200.0
-export (float) var max_particles_velocity = 600.0
+@export var min_particles_velocity: float = 200.0
+@export var max_particles_velocity: float = 600.0
 
-export (int) var max_particles_position_x = ProjectSettings.get_setting("display/window/size/width")
-export (int) var max_particles_position_y = ProjectSettings.get_setting("display/window/size/height")
+@export var max_particles_position_x: int = ProjectSettings.get_setting("display/window/size/viewport_width")
+@export var max_particles_position_y: int = ProjectSettings.get_setting("display/window/size/viewport_height")
 
-export (int) var min_particles_size = 1
-export (int) var max_particles_size = 4
+@export var min_particles_size: int = 1
+@export var max_particles_size: int = 4
 
-export (bool) var get_random_position = false
-export (bool) var start_timer = false
-export (float) var timer_wait_time = 1.0
-export (bool) var particles_explode = false
-export (String) var group_name = "fake_explosion_particles"
+@export var get_random_position: bool = false
+@export var start_timer: bool = false
+@export var timer_wait_time: float = 1.0
+@export var particles_explode: bool = false
+@export var group_name: String = "fake_explosion_particles"
 
 var particles = []
 var particles_number
@@ -46,8 +46,8 @@ func _ready():
 	particles_timer = Timer.new()
 	particles_timer.one_shot = false
 	particles_timer.wait_time = timer_wait_time
-	particles_timer.set_timer_process_mode(1)
-	particles_timer.connect("timeout", self, "_on_particles_timer_timeout")
+	particles_timer.set_timer_process_callback(1)
+	particles_timer.connect("timeout", Callable(self, "_on_particles_timer_timeout"))
 
 	add_child(particles_timer, true)
 
@@ -62,7 +62,7 @@ func _process(delta):
 		_particles_explode(delta)
 
 		# Redraw the particles every frame.
-		update()
+		queue_redraw()
 
 	# If there are no particles in the particles array, free the node.
 	if particles.size() == 0 and not start_timer:
@@ -98,7 +98,7 @@ func _particles_explode(delta):
 				# ... find the particle in the particles array...
 				var i = particles.find(particle)
 				# ... and remove it from the particles array.
-				particles.remove(i)
+				particles.remove_at(i)
 
 
 func _create_particles():
@@ -138,7 +138,7 @@ func _create_particles():
 
 func _get_random_alpha():
 	randomize()
-	var random_alpha = rand_range(2, 10)
+	var random_alpha = randf_range(2, 10)
 	return random_alpha
 
 
@@ -151,13 +151,13 @@ func _get_random_color():
 func _get_random_gravity():
 	randomize()
 	var random_gravity = Vector2(
-							rand_range(
-								-rand_range(min_particles_gravity, max_particles_gravity),
-								rand_range(min_particles_gravity, max_particles_gravity)
+							randf_range(
+								-randf_range(min_particles_gravity, max_particles_gravity),
+								randf_range(min_particles_gravity, max_particles_gravity)
 							),
-							rand_range(
-								rand_range(min_particles_gravity * 2, max_particles_gravity * 2),
-								rand_range(min_particles_gravity * 2, max_particles_gravity * 2)
+							randf_range(
+								randf_range(min_particles_gravity * 2, max_particles_gravity * 2),
+								randf_range(min_particles_gravity * 2, max_particles_gravity * 2)
 							)
 						)
 	return random_gravity
@@ -165,14 +165,14 @@ func _get_random_gravity():
 
 func _get_random_number():
 	randomize()
-	var random_number = round(rand_range(min_particles_number, max_particles_number))
+	var random_number = round(randf_range(min_particles_number, max_particles_number))
 	return random_number
 
 
 func _get_random_position():
 	randomize()
-	var random_position_x = rand_range(0, max_particles_position_x)
-	var random_position_y = rand_range(0, max_particles_position_y)
+	var random_position_x = randf_range(0, max_particles_position_x)
+	var random_position_y = randf_range(0, max_particles_position_y)
 	var random_position = Vector2(random_position_x, random_position_y)
 	return random_position
 
@@ -187,13 +187,13 @@ func _get_random_size():
 func _get_random_velocity():
 	randomize()
 	var random_velocity = Vector2(
-							rand_range(
-								-rand_range(min_particles_velocity, max_particles_velocity),
-								rand_range(min_particles_velocity, max_particles_velocity)
+							randf_range(
+								-randf_range(min_particles_velocity, max_particles_velocity),
+								randf_range(min_particles_velocity, max_particles_velocity)
 							),
-							rand_range(
-								-rand_range(min_particles_velocity * 2, max_particles_velocity * 2),
-								-rand_range(min_particles_velocity * 2, max_particles_velocity * 2)
+							randf_range(
+								-randf_range(min_particles_velocity * 2, max_particles_velocity * 2),
+								-randf_range(min_particles_velocity * 2, max_particles_velocity * 2)
 							)
 						)
 	return random_velocity
@@ -201,13 +201,13 @@ func _get_random_velocity():
 
 func _get_random_velocity_increment():
 	randomize()
-	var random_velocity_increment = Vector2(rand_range(0.991, 1.009), rand_range(0.991, 1.009))
+	var random_velocity_increment = Vector2(randf_range(0.991, 1.009), randf_range(0.991, 1.009))
 	return random_velocity_increment
 
 
 func _get_random_time():
 	randomize()
-	var random_time = rand_range(0.05, 0.1)
+	var random_time = randf_range(0.05, 0.1)
 	return random_time
 
 

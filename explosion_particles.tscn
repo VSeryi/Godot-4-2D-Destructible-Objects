@@ -1,13 +1,11 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://bn6uk7an8n0nn"]
 
-[ext_resource path="res://explosion_particles_material.tres" type="Material" id=1]
+[ext_resource type="Material" uid="uid://syb8526cp1qr" path="res://explosion_particles_material.tres" id="1"]
 
-
-[node name="particles" type="Particles2D"]
+[node name="particles" type="GPUParticles2D"]
 emitting = false
 amount = 200
+process_material = ExtResource("1")
 one_shot = true
 speed_scale = 3.0
 explosiveness = 0.5
-process_material = ExtResource( 1 )
-

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [1.4.0] - 2024-04-12
+
+### Changed
+
+* Update to Godot 4.X
+
 ## [1.3.0] - 2020-03-25
 
 ### Added
